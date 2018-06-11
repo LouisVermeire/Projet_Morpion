@@ -32,7 +32,7 @@
        position:absolute;
        height: 364px;
        width: 10px;
-       left:522;
+       left:522px;
        background-color:black;
        z-index: 0;
        top:68px;
@@ -72,7 +72,7 @@
         }
 
 
-#barrehorizontale1 {
+#barrehorizontale4 {
        position:absolute;
        height: 10px;
        width: 364px;
@@ -81,4 +81,15 @@
        z-index: 0;
        top:422px;
         }
+        
+
+
+
+#croix {
+       position:absolute;
+       height: 104px;
+       width: 108px;
+       visibility: hidden;
+       z-index: 1;   
+}
         
