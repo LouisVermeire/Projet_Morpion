@@ -1,6 +1,6 @@
-var origBoard;
-const huPlayer = 'O';
-const aiPlayer = 'X';
+var debPlanche;
+const joueur = 'O';
+const ai = 'X';
 const combos_gagnant = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -12,129 +12,129 @@ const combos_gagnant = [
 	[6, 4, 2]
 ]
 
-const cells = document.querySelectorAll('.cell');
-startGame();
+const cases = document.querySelectorAll('.case');
+debjeu();
 
-function startGame() {
-	document.querySelector(".endgame").style.display = "none";
-	origBoard = Array.from(Array(9).keys());
-	for (var i = 0; i < cells.length; i++) {
-		cells[i].innerText = '';
-		cells[i].style.removeProperty('background-color');
-		cells[i].addEventListener('click', turnClick, false);
+function debjeu() {
+	document.querySelector(".finjeu").style.display = "none";
+	debPlanche = Array.from(Array(9).keys());
+	for (var i = 0; i < cases.length; i++) {
+		cases[i].innerText = '';
+		cases[i].style.removeProperty('background-color');
+		cases[i].addEventListener('click', changeClick, false);
 	}
 }
 
-function turnClick(square) {
-	if (typeof origBoard[square.target.id] == 'number') {
-		turn(square.target.id, huPlayer)
-		if (!checkWin(origBoard, huPlayer) && !checkTie()) turn(bestSpot(), aiPlayer);
+function changeClick(square) {
+	if (typeof debPlanche[square.target.id] == 'number') {
+		tour(square.target.id, joueur)
+		if (!quiGagne(debPlanche, joueur) && !verifer()) tour(bestPlace(), ai);
 	}
 }
 
-function turn(squareId, player) {
-	origBoard[squareId] = player;
+function tour(squareId, player) {
+	debPlanche[squareId] = player;
 	document.getElementById(squareId).innerText = player;
-	let gameWon = checkWin(origBoard, player)
-	if (gameWon) gameOver(gameWon)
+	let jeuGagne = quiGagne(debPlanche, player)
+	if (jeuGagne) jeuPerdu(jeuGagne)
 }
 
-function checkWin(board, player) {
-	let plays = board.reduce((a, e, i) =>
+function quiGagne(board, player) {
+	let jeux = board.reduce((a, e, i) =>
 		(e === player) ? a.concat(i) : a, []);
-	let gameWon = null;
+	let jeuGagne = null;
 	for (let [index, win] of combos_gagnant.entries()) {
-		if (win.every(elem => plays.indexOf(elem) > -1)) {
-			gameWon = {index: index, player: player};
+		if (win.every(elem => jeux.indexOf(elem) > -1)) {
+			jeuGagne = {index: index, player: player};
 			break;
 		}
 	}
-	return gameWon;
+	return jeuGagne;
 }
 
-function gameOver(gameWon) {
-	for (let index of combos_gagnant[gameWon.index]) {
+function jeuPerdu(jeuGagne) {
+	for (let index of combos_gagnant[jeuGagne.index]) {
 		document.getElementById(index).style.backgroundColor =
-			gameWon.player == huPlayer ? "blue" : "red";
+			jeuGagne.player == joueur ? "blue" : "red";
 	}
-	for (var i = 0; i < cells.length; i++) {
-		cells[i].removeEventListener('click', turnClick, false);
+	for (var i = 0; i < cases.length; i++) {
+		cases[i].removeEventListener('click', changeClick, false);
 	}
-	declareWinner(gameWon.player == huPlayer ? "You win!" : "You lose.");
+	annonceGagnant(jeuGagne.player == joueur ? "Tu as gagné!" : "Tu as perdu.");
 }
 
-function declareWinner(who) {
-	document.querySelector(".endgame").style.display = "block";
-	document.querySelector(".endgame .text").innerText = who;
+function annonceGagnant(who) {
+	document.querySelector(".finjeu").style.display = "block";
+	document.querySelector(".finjeu .text").innerText = who;
 }
 
-function emptySquares() {
-	return origBoard.filter(s => typeof s == 'number');
+function casesvides() {
+	return debPlanche.filter(s => typeof s == 'number');
 }
 
-function bestSpot() {
-	return minimax(origBoard, aiPlayer).index;
+function bestPlace() {
+	return minimax(debPlanche, ai).index;
 }
 
-function checkTie() {
-	if (emptySquares().length == 0) {
-		for (var i = 0; i < cells.length; i++) {
-			cells[i].style.backgroundColor = "green";
-			cells[i].removeEventListener('click', turnClick, false);
+function verifer() {
+	if (casesvides().length == 0) {
+		for (var i = 0; i < cases.length; i++) {
+			cases[i].style.backgroundColor = "green";
+			cases[i].removeEventListener('click', changeClick, false);
 		}
-		declareWinner("Tie Game!")
+		annonceGagnant("Match nul!")
 		return true;
 	}
 	return false;
 }
 
-function minimax(newBoard, player) {
-	var availSpots = emptySquares();
+function minimax(nouvPlanche, player) {
+	var placesDispos = casesvides();
 
-	if (checkWin(newBoard, huPlayer)) {
+	if (quiGagne(nouvPlanche, joueur)) {
 		return {score: -10};
-	} else if (checkWin(newBoard, aiPlayer)) {
+	} else if (quiGagne(nouvPlanche, ai)) {
 		return {score: 10};
-	} else if (availSpots.length === 0) {
+	} else if (placesDispos.length === 0) {
 		return {score: 0};
 	}
-	var moves = [];
-	for (var i = 0; i < availSpots.length; i++) {
-		var move = {};
-		move.index = newBoard[availSpots[i]];
-		newBoard[availSpots[i]] = player;
+	var mouvements = [];
+	for (var i = 0; i < placesDispos.length; i++) {
+		var mouvement = {};
+		mouvement.index = nouvPlanche[placesDispos[i]];
+		nouvPlanche[placesDispos[i]] = player;
 
-		if (player == aiPlayer) {
-			var result = minimax(newBoard, huPlayer);
-			move.score = result.score;
+		if (player == ai) {
+			var result = minimax(nouvPlanche, joueur);
+			mouvement.score = result.score;
 		} else {
-			var result = minimax(newBoard, aiPlayer);
-			move.score = result.score;
+			var result = minimax(nouvPlanche, ai);
+			mouvement.score = result.score;
 		}
 
-		newBoard[availSpots[i]] = move.index;
+		nouvPlanche[placesDispos[i]] = mouvement.index;
 
-		moves.push(move);
+		mouvements.push(mouvement);
 	}
 
-	var bestMove;
-	if(player === aiPlayer) {
+	var bestMouv;
+	if(player === ai) {
 		var bestScore = -10000;
-		for(var i = 0; i < moves.length; i++) {
-			if (moves[i].score > bestScore) {
-				bestScore = moves[i].score;
-				bestMove = i;
+		for(var i = 0; i < mouvements.length; i++) {
+			if (mouvements[i].score > bestScore) {
+				bestScore = mouvements[i].score;
+				bestMouv = i;
 			}
 		}
 	} else {
 		var bestScore = 10000;
-		for(var i = 0; i < moves.length; i++) {
-			if (moves[i].score < bestScore) {
-				bestScore = moves[i].score;
-				bestMove = i;
+		for(var i = 0; i < mouvements.length; i++) {
+			if (mouvements[i].score < bestScore) {
+				bestScore = mouvements[i].score;
+				bestMouv = i;
 			}
 		}
 	}
 
-	return moves[bestMove];
+	return mouvements[bestMouv];
 }
