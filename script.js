@@ -1,7 +1,7 @@
 var origBoard;
 const huPlayer = 'O';
 const aiPlayer = 'X';
-const winCombos = [
+const combos_gagnant = [
 	[0, 1, 2],
 	[3, 4, 5],
 	[6, 7, 8],
@@ -43,7 +43,7 @@ function checkWin(board, player) {
 	let plays = board.reduce((a, e, i) =>
 		(e === player) ? a.concat(i) : a, []);
 	let gameWon = null;
-	for (let [index, win] of winCombos.entries()) {
+	for (let [index, win] of combos_gagnant.entries()) {
 		if (win.every(elem => plays.indexOf(elem) > -1)) {
 			gameWon = {index: index, player: player};
 			break;
@@ -53,7 +53,7 @@ function checkWin(board, player) {
 }
 
 function gameOver(gameWon) {
-	for (let index of winCombos[gameWon.index]) {
+	for (let index of combos_gagnant[gameWon.index]) {
 		document.getElementById(index).style.backgroundColor =
 			gameWon.player == huPlayer ? "blue" : "red";
 	}
